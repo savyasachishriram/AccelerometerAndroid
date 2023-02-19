@@ -1,64 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+
     <TextView
-        android:paddingTop="20dip"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textStyle="bold"
         android:gravity="center"
-        android:text="Shaker Demo"/>
+        android:paddingTop="20dip"
+        android:text="Shaker Demo"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
     <TableLayout
-        android:paddingTop="10dip"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="10dip"
         android:stretchColumns="*">
+
         <TableRow>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:gravity="center"
                 android:text="X-Axis"
-                android:gravity="center"/>
+                android:textSize="14sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:gravity="center"
                 android:text="Y-Axis"
-                android:gravity="center"/>
+                android:textSize="14sp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:gravity="center"
                 android:text="Z-Axis"
-                android:gravity="center"/>
+                android:textSize="14sp" />
         </TableRow>
+
         <TableRow>
+
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:id="@+id/x_axis"
-                android:gravity="center"/>
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center" />
+
+            <TextView
                 android:id="@+id/y_axis"
-                android:gravity="center"/>
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:gravity="center" />
+
+            <TextView
                 android:id="@+id/z_axis"
-                android:gravity="center"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center" />
         </TableRow>
     </TableLayout>
+
     <ImageView
-        android:paddingTop="10dip"
+        android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/image"
         android:layout_gravity="center"
-        android:visibility="invisible"/>
+        android:paddingTop="10dip"
+        android:visibility="invisible" />
+
+    <TextView
+        android:id="@+id/locationText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="@string/location_placeholder" />
+
+    <Button
+        android:id="@+id/getLocationBtn"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:text="Get Current Location" />
+
 </LinearLayout>
