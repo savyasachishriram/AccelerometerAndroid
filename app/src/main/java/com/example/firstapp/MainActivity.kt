@@ -9,11 +9,14 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
@@ -21,7 +24,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import java.lang.Float.*
+import java.util.Locale
 import kotlin.math.abs
+
 
 @SuppressLint("ObsoleteSdkInt")
 class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener {
@@ -31,28 +37,35 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
     private var mInitialized = false
     private var mSensorManager: SensorManager? = null
     private var mAccelerometer: Sensor? = null
-    private val NOISE = 2.0.toFloat()
+    private val _NOISE = 2.0.toFloat()
     private var getLocationBtn: Button? = null
     private var locationText: TextView? = null
     private var locationManager: LocationManager? = null
     private var permissionsToRequest: ArrayList<String>? = null
-    private val permissionsRejected: ArrayList<String> = ArrayList<String>()
+    private val permissionsRejected: ArrayList<String> = ArrayList()
     private val permissions = ArrayList<String>()
+
+    private var geocoder: Geocoder? = null
+    private var addresses: List<Address>? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         permissions.add(permission.ACCESS_FINE_LOCATION)
         permissions.add(permission.ACCESS_COARSE_LOCATION)
         permissionsToRequest = findUnAskedPermissions(permissions)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (permissionsToRequest!!.size > 0) requestPermissions(
-                permissionsToRequest!!.toTypedArray<String>(),
+                permissionsToRequest!!.toTypedArray(),
                 ALL_PERMISSIONS_RESULT
             )
         }
         getLocationBtn = findViewById<View>(R.id.getLocationBtn) as Button
         locationText = findViewById<View>(R.id.locationText) as TextView
-        getLocationBtn!!.setOnClickListener { v: View? -> location }
+        geocoder = Geocoder(this,Locale.getDefault())
+        getLocationBtn!!.setOnClickListener { location }
+
         mInitialized = false
         mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         mAccelerometer = mSensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -89,15 +102,15 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
             var deltaX = abs(mLastX - x)
             var deltaY = abs(mLastY - y)
             var deltaZ = abs(mLastZ - z)
-            if (deltaX < NOISE) deltaX = 0.0.toFloat()
-            if (deltaY < NOISE) deltaY = 0.0.toFloat()
-            if (deltaZ < NOISE) deltaZ = 0.0.toFloat()
+            if (deltaX < _NOISE) deltaX = 0.0.toFloat()
+            if (deltaY < _NOISE) deltaY = 0.0.toFloat()
+            if (deltaZ < _NOISE) deltaZ = 0.0.toFloat()
             mLastX = x
             mLastY = y
             mLastZ = z
-            tvX.text = java.lang.Float.toString(deltaX)
-            tvY.text = java.lang.Float.toString(deltaY)
-            tvZ.text = java.lang.Float.toString(deltaZ)
+            tvX.text = deltaX.toString()
+            tvY.text = deltaY.toString()
+            tvZ.text = deltaZ.toString()
             iv.visibility = View.VISIBLE
             if (deltaX > deltaY) {
                 iv.setImageResource(R.drawable.horizontal)
@@ -110,7 +123,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
     }
 
     override fun onAccuracyChanged(sensor: Sensor, i: Int) {}
-    val location: Unit
+
+    private val location: Unit
         get() {
             try {
                 locationManager = getSystemService(LOCATION_SERVICE) as LocationManager
@@ -126,7 +140,18 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
         }
 
     override fun onLocationChanged(location: Location) {
-        locationText!!.text = "Current Location: " + location.latitude + ", " + location.longitude
+        addresses = geocoder?.getFromLocation(location.latitude, location.longitude, 1)
+        val landMark = (addresses?.get(0)?.featureName)
+        Log.d("Address", addresses?.size.toString() + "\n" + addresses.toString())
+        locationText!!.text =
+            buildString {
+        append("Current Location: ")
+        append(location.latitude)
+        append(", ")
+        append(location.longitude)
+        append("\nLandmark: ")
+        append(landMark)
+    }
         Toast.makeText(
             this,
             "Current Location: " + location.latitude + ", " + location.longitude,
@@ -139,7 +164,9 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
             .show()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+
     override fun onProviderEnabled(provider: String) {}
     private fun findUnAskedPermissions(wanted: ArrayList<String>): ArrayList<String> {
         val result = ArrayList<String>()
@@ -152,7 +179,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
     }
 
     private fun hasPermission(permission: Any): Boolean {
-        if (canMakeSmores()) {
+        if (canMakeStores()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 return checkSelfPermission((permission as String)) == PackageManager.PERMISSION_GRANTED
             }
@@ -160,7 +187,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
         return true
     }
 
-    private fun canMakeSmores(): Boolean {
+    private fun canMakeStores(): Boolean {
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1
     }
 
@@ -179,8 +206,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
             }
             if (permissionsRejected.size > 0) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (shouldShowRequestPermissionRationale((permissionsRejected[0] as String))) {
-                        showMessageOKCancel { dialog: DialogInterface?, which: Int ->
+                    if (shouldShowRequestPermissionRationale(permissionsRejected[0])) {
+                        showMessageOKCancel { _: DialogInterface?, _: Int ->
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 requestPermissions(
                                     (permissionsRejected.toTypedArray() as Array<String?>),
@@ -202,10 +229,6 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
             .setNegativeButton("Cancel", null)
             .create()
             .show()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     companion object {
