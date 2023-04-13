@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
     private var metaDataState = false
     private var accelerometerData = AccelerometerData()
 
-    private var latitude: Double = 0.0
     private var longitude: Double = 0.0
+    private var latitude: Double = 0.0
     private var landMark: String = ""
 
     private var counter = 0
