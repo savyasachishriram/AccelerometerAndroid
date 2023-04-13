@@ -9,13 +9,8 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.location.Address
-import android.location.Geocoder
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
-import android.os.Build
-import android.os.Bundle
+import android.location.*
+import android.os.*
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -24,8 +19,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import com.example.firstapp.utils.AccelerometerData
+import com.example.firstapp.utils.FirebaseUtils
 import java.lang.Float.*
-import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 
@@ -37,16 +37,31 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
     private var mInitialized = false
     private var mSensorManager: SensorManager? = null
     private var mAccelerometer: Sensor? = null
-    private val _NOISE = 2.0.toFloat()
     private var getLocationBtn: Button? = null
+    private var countTime: TextView? = null
     private var locationText: TextView? = null
     private var locationManager: LocationManager? = null
     private var permissionsToRequest: ArrayList<String>? = null
     private val permissionsRejected: ArrayList<String> = ArrayList()
     private val permissions = ArrayList<String>()
 
+    private var xD = 0.0F
+    private var yD = 0.0F
+    private var zD = 0.0F
+
     private var geocoder: Geocoder? = null
     private var addresses: List<Address>? = null
+    private var metaDataState = false
+    private var accelerometerData = AccelerometerData()
+
+    private var latitude: Double = 0.0
+    private var longitude: Double = 0.0
+    private var landMark: String = ""
+
+    private var counter = 0
+    private var toggleMetaData = false
+    private var toggleMainHandler = true
+    private lateinit var countDownTimer: CountDownTimer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,13 +78,73 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
         }
         getLocationBtn = findViewById<View>(R.id.getLocationBtn) as Button
         locationText = findViewById<View>(R.id.locationText) as TextView
+        countTime = findViewById<View>(R.id.countTime) as TextView
+
         geocoder = Geocoder(this,Locale.getDefault())
-        getLocationBtn!!.setOnClickListener { location }
+
+        getLocationBtn!!.setOnClickListener {
+            if(toggleMetaData) {
+                countDownTimer.cancel()
+                countTime!!.text = getString(R.string.time_placeholder)
+                toggleMetaData = false
+                toggleMainHandler = false
+                getLocationBtn!!.text = getString(R.string.start)
+                getLocationBtn!!.backgroundTintList = ContextCompat.getColorStateList(this,R.color.git_green)
+            } else {
+                toggleMetaData = true
+                toggleMainHandler = true
+                getLocationBtn!!.text = getString(R.string.stop)
+                getLocationBtn!!.backgroundTintList = ContextCompat.getColorStateList(this,R.color.red_follow)
+                location
+                val mainHandler = Handler(Looper.getMainLooper())
+                mainHandler.post(object : Runnable {
+                    override fun run() {
+                        if(toggleMainHandler) {
+                            mainHandler.postDelayed(this, 100)
+                            val s = SimpleDateFormat(getString(R.string.date_pattern))
+                            accelerometerData.timestamp = s.format(Date()).toString()
+                            accelerometerData.lat = latitude
+                            accelerometerData.long = longitude
+                            accelerometerData.xAxis = xD
+                            accelerometerData.yAxis = yD
+                            accelerometerData.zAxis = zD
+                            if(landMark != "") {
+                                Log.d("AccData","${accelerometerData.xAxis} , ${accelerometerData.yAxis} , ${accelerometerData.zAxis}")
+                                uploadAccelerometerData(landMark, accelerometerData)
+                            }
+                        }
+                    }
+                })
+                startTimeCounter()
+            }
+        }
 
         mInitialized = false
         mSensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
         mAccelerometer = mSensorManager!!.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         mSensorManager!!.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL)
+    }
+
+    private fun startTimeCounter() {
+        countDownTimer = object : CountDownTimer(INF_TIME,INTERVAL_SEC) {
+            @SuppressLint("DefaultLocale")
+            override fun onTick(millisUntilFinished: Long) {
+                countTime?.visibility = View.VISIBLE
+                val ms = (INF_TIME - millisUntilFinished)
+                val time = java.lang.String.format(
+                    "%02d min %02d sec",
+                    TimeUnit.MILLISECONDS.toMinutes(ms) - TimeUnit.HOURS.toMinutes(
+                        TimeUnit.MILLISECONDS.toHours(ms)),
+                    TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(
+                        TimeUnit.MILLISECONDS.toMinutes(ms))
+                )
+                countTime?.text = time
+                counter++
+            }
+            override fun onFinish() {
+                "Session Stopped".also { countTime?.text = it }
+            }
+        }.start()
     }
 
     override fun onResume() {
@@ -102,12 +177,17 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
             var deltaX = abs(mLastX - x)
             var deltaY = abs(mLastY - y)
             var deltaZ = abs(mLastZ - z)
-            if (deltaX < _NOISE) deltaX = 0.0.toFloat()
-            if (deltaY < _NOISE) deltaY = 0.0.toFloat()
-            if (deltaZ < _NOISE) deltaZ = 0.0.toFloat()
+            if (deltaX < NOISE) deltaX = 0.0.toFloat()
+            if (deltaY < NOISE) deltaY = 0.0.toFloat()
+            if (deltaZ < NOISE) deltaZ = 0.0.toFloat()
             mLastX = x
             mLastY = y
             mLastZ = z
+            if(deltaX != 0.0F || deltaY != 0.0F || deltaZ != 0.0F) {
+                xD = deltaX
+                yD = deltaY
+                zD = deltaZ
+            }
             tvX.text = deltaX.toString()
             tvY.text = deltaY.toString()
             tvZ.text = deltaZ.toString()
@@ -140,18 +220,30 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
         }
 
     override fun onLocationChanged(location: Location) {
+        latitude = location.latitude
+        longitude = location.longitude
         addresses = geocoder?.getFromLocation(location.latitude, location.longitude, 1)
-        val landMark = (addresses?.get(0)?.featureName)
         Log.d("Address", addresses?.size.toString() + "\n" + addresses.toString())
-        locationText!!.text =
-            buildString {
+        landMark = (addresses?.get(0)?.featureName).toString()
+        val locality = (addresses?.get(0)?.locality).toString()
+        val postalCode = (addresses?.get(0)?.postalCode).toString()
+        locationText!!.text = buildString {
         append("Current Location: ")
         append(location.latitude)
         append(", ")
         append(location.longitude)
         append("\nLandmark: ")
         append(landMark)
-    }
+        }
+        if(landMark.isNotEmpty() && !metaDataState) {
+            metaDataState = true
+            val dataMap  = hashMapOf(
+                "landMarkKey" to landMark,
+                "locality" to locality,
+                "postalCode" to postalCode
+            )
+            uploadRoadMetaData(dataMap)
+        }
         Toast.makeText(
             this,
             "Current Location: " + location.latitude + ", " + location.longitude,
@@ -168,6 +260,7 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
     override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
 
     override fun onProviderEnabled(provider: String) {}
+
     private fun findUnAskedPermissions(wanted: ArrayList<String>): ArrayList<String> {
         val result = ArrayList<String>()
         for (perm in wanted) {
@@ -231,7 +324,33 @@ class MainActivity : AppCompatActivity(), SensorEventListener, LocationListener 
             .show()
     }
 
+    private fun uploadRoadMetaData(dataMap: HashMap<String, String>) {
+        FirebaseUtils().db.collection("landMarks").document(dataMap["landMarkKey"]!!)
+            .set(dataMap)
+            .addOnSuccessListener {
+                Log.d("DocID", "Added document with ID ${dataMap["landMarkKey"]!!}")
+            }
+            .addOnFailureListener { exception ->
+                Log.w("DocError", "Error adding document $exception")
+            }
+    }
+
+    private fun uploadAccelerometerData(landMark: String,accelerometerData: AccelerometerData) {
+        FirebaseUtils().db.collection("landMarks").document(landMark).collection("accelerometerData")
+            .document()
+            .set(accelerometerData)
+            .addOnSuccessListener {
+                Log.d("DocID", "Added document with ID $landMark")
+            }
+            .addOnFailureListener { exception ->
+                Log.w("DocError", "Error adding document $exception")
+            }
+    }
+
     companion object {
         private const val ALL_PERMISSIONS_RESULT = 101
+        private const val NOISE = 2.0.toFloat()
+        private const val INF_TIME = 1000000000000000000L
+        private const val INTERVAL_SEC = 1000L
     }
 }

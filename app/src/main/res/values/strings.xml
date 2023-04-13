@@ -1,4 +1,11 @@
 <resources>
-    <string name="app_name">AccelerometerAndroid</string>
+    <string name="app_name">RoadSense</string>
     <string name="location_placeholder">Current Location is Displayed Here</string>
+    <string name="time_placeholder">00:00</string>
+    <string name="start">START</string>
+    <string name="stop">STOP</string>
+    <string name="date_pattern">ddMMyyyyhhmmss</string>
+    <string name="z_axis">Z-Axis</string>
+    <string name="y_axis">Y-Axis</string>
+    <string name="x_axis">X-Axis</string>
 </resources>

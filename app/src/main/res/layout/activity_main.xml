@@ -2,76 +2,139 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:paddingTop="10dp"
+    android:background="#303030"
     android:orientation="vertical">
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:paddingTop="20dip"
-        android:text="Shaker Demo"
-        android:textSize="16sp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:text="@string/app_name"
+        android:textColor="@color/white"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
-    <TableLayout
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="10dip"
-        android:stretchColumns="*">
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="30dp"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
-        <TableRow>
+        <LinearLayout
+            android:id="@+id/follower_count_box"
+            android:layout_width="110dp"
+            android:layout_height="100dp"
+            android:layout_weight="1"
+            android:background="@drawable/border"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp"
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="X-Axis"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Y-Axis"
-                android:textSize="14sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="Z-Axis"
-                android:textSize="14sp" />
-        </TableRow>
-
-        <TableRow>
+            android:textAllCaps="false">
 
             <TextView
                 android:id="@+id/x_axis"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center" />
+                android:layout_gravity="center"
+                android:layout_marginTop="12dp"
+                android:text=""
+                android:textColor="@color/red_follow"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/x_axis"
+                android:textColor="@color/dash_text_light"
+                android:textSize="12sp" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/RepoCountBox"
+            android:layout_width="110dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/border"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp"
+
+            android:textAllCaps="false">
 
             <TextView
                 android:id="@+id/y_axis"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center" />
+                android:layout_gravity="center"
+                android:layout_marginTop="12dp"
+                android:text=""
+                android:textColor="@color/teal_200"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/y_axis"
+                android:textColor="@color/dash_text_light"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/Following_Count_Box"
+            android:layout_width="110dp"
+            android:layout_height="100dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/border"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="10dp"
+
+            android:textAllCaps="false">
 
             <TextView
                 android:id="@+id/z_axis"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center" />
-        </TableRow>
-    </TableLayout>
+                android:layout_gravity="center"
+                android:layout_marginTop="12dp"
+                android:text=""
+                android:textColor="@color/purple_follow"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/z_axis"
+                android:textColor="@color/dash_text_light"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:paddingTop="10dip"
-        android:visibility="invisible" />
+        android:paddingTop="20dp"
+        android:visibility="invisible"
+        android:contentDescription="@string/app_name" />
 
     <TextView
         android:id="@+id/locationText"
@@ -79,14 +142,29 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
+        android:textColor="@color/white"
         android:text="@string/location_placeholder" />
 
     <Button
         android:id="@+id/getLocationBtn"
         android:layout_width="200dp"
+        android:backgroundTint="@color/git_green"
+        android:textColor="@color/black"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="50dp"
-        android:text="Get Current Location" />
+        android:layout_marginTop="20dp"
+        android:text="@string/start" />
+
+    <TextView
+        android:id="@+id/countTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_gravity="center"
+        android:layout_marginTop="40dp"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:textColor="@color/red_follow"
+        android:text="@string/time_placeholder" />
 
 </LinearLayout>

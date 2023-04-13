@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
+    <color name="purple_500">#313131</color>
+    <color name="grey_500">#313131</color>
+    <color name="purple_700">#303030</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="git_green">#6CFF54</color>
+    <color name="git_black">#1C1C1C</color>
+
+    <color name="bg_color">#ffffff</color>
+    <color name="card_bg">#E6E6E6</color>
+    <color name="text_color">#1C1C1C</color>
+    <color name="text_color_light">#999999</color>
+    <color name="fab_bg">#999999</color>
+    <color name="border_stroke">#999999</color>
+    <color name="mtrl_textinput_default_box_stroke_color">#999999</color>
+
+    <color name="dash_bg">#121212</color>
+    <color name="dash_card">#1C1C1C</color>
+    <color name="dash_text">#FFFFFF</color>
+    <color name="dash_text_light">#656565</color>
+    <color name="red_follow">#DB5151</color>
+    <color name="purple_follow">#DA8BFF</color>
+
+    <color name="translucent">#00000000</color>
 </resources>
