@@ -4,7 +4,7 @@
 ### Introduction
 Maintaining the condition of roads is crucial for ensuring safe and efficient transportation. Poor road conditions, such as potholes, cracks, and bumps, can cause damage to vehicles, increase the risk of accidents, and lead to unnecessary traffic congestion. Hence, it is important to have a system in place that can detect and monitor road conditions in real-time.
 In present condition with regard to any road travel, we have readily available data such as estimated duration of journey, traffic situation, whether we might have to pay tolls but one key metric not accessible is of road condition and road blockages. Our aim with our project is to add this key metric, one of road condition and road blockages to better aide the decision making of road users and governmental organizations.
-The motivation lies in the urge to fill this demand for the access to road condition and blockage data. We see several stakeholder s benefitting from this data, some of the major ones being:
+The motivation lies in the urge to fill this demand for the access to road condition and blockage data. We see several stakeholders benefitting from this data, some of the major ones being:
 1)	Commuters:
 
 a.	Economical – reduce maintenance costs, improve fuel efficiency
